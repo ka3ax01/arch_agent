@@ -138,10 +138,52 @@ public sealed class AgentPipeline
     private static string BuildPrompt(SystemModel model)
     {
         var sb = new StringBuilder();
-        sb.AppendLine("You are a pragmatic solution architect.");
-        sb.AppendLine("Return only JSON with fields: style, containers, useBroker, useLoadBalancer, tradeoffs.");
-        sb.AppendLine("style must be 'microservices' or 'modular monolith'.");
+
+        sb.AppendLine("You are a senior solution architect for an enterprise system.");
+        sb.AppendLine("Your goal is to propose a BUILDABLE architecture that ADDS new engineering value beyond restating requirements.");
+        sb.AppendLine("Return ONLY valid JSON (no markdown, no comments, no trailing commas).");
         sb.AppendLine();
+
+        sb.AppendLine("JSON schema (MUST match):");
+        sb.AppendLine("{");
+        sb.AppendLine("  \"style\": \"modular_monolith\" | \"microservices\" | \"hybrid\",");
+        sb.AppendLine("  \"styleRationale\": [\"...\"],");
+        sb.AppendLine("  \"containers\": [");
+        sb.AppendLine("    {");
+        sb.AppendLine("      \"name\": \"...\",");
+        sb.AppendLine("      \"type\": \"web\" | \"api\" | \"worker\" | \"db\" | \"broker\" | \"storage\" | \"external\" | \"observability\",");
+        sb.AppendLine("      \"responsibilities\": [\"...\"],");
+        sb.AppendLine("      \"interfaces\": [\"REST\", \"Events\", \"SQL\", \"S3\"],");
+        sb.AppendLine("      \"dataOwned\": [\"...\"],");
+        sb.AppendLine("      \"scaling\": \"stateless_horizontal\" | \"vertical\" | \"managed\",");
+        sb.AppendLine("      \"risks\": [\"...\"],");
+        sb.AppendLine("      \"nfrTactics\": { \"security\": [\"...\"], \"performance\": [\"...\"], \"availability\": [\"...\"], \"observability\": [\"...\"] }");
+        sb.AppendLine("    }");
+        sb.AppendLine("  ],");
+        sb.AppendLine("  \"modules\": [");
+        sb.AppendLine("    { \"name\": \"...\", \"purpose\": \"...\", \"keyEntities\": [\"...\"], \"keyAPIs\": [\"...\"] }");
+        sb.AppendLine("  ],");
+        sb.AppendLine("  \"dataDesign\": {");
+        sb.AppendLine("    \"entities\": [\"...\"],");
+        sb.AppendLine("    \"relationships\": [\"...\"],");
+        sb.AppendLine("    \"attachments\": { \"approach\": \"object_storage\" | \"db\" , \"notes\": \"...\" },");
+        sb.AppendLine("    \"auditing\": { \"approach\": \"append_only\" | \"standard\" , \"notes\": \"...\" }");
+        sb.AppendLine("  },");
+        sb.AppendLine("  \"keyFlows\": [");
+        sb.AppendLine("    { \"name\": \"...\", \"steps\": [\"...\"] , \"syncOrAsync\": \"sync\" | \"async\" | \"hybrid\" }");
+        sb.AppendLine("  ],");
+        sb.AppendLine("  \"decisions\": [");
+        sb.AppendLine("    { \"adrTitle\": \"...\", \"decision\": \"...\", \"options\": [\"...\"], \"why\": [\"...\"], \"consequences\": [\"...\"] }");
+        sb.AppendLine("  ],");
+        sb.AppendLine("  \"risks\": [");
+        sb.AppendLine("    { \"risk\": \"...\", \"likelihood\": \"Low\"|\"Med\"|\"High\", \"impact\": \"Low\"|\"Med\"|\"High\", \"mitigation\": [\"...\"] }");
+        sb.AppendLine("  ],");
+        sb.AppendLine("  \"assumptions\": [");
+        sb.AppendLine("    { \"field\": \"...\", \"assumption\": \"...\", \"reason\": \"...\" }");
+        sb.AppendLine("  ]");
+        sb.AppendLine("}");
+        sb.AppendLine();
+
         sb.AppendLine("System details:");
         sb.AppendLine($"Goal: {model.Goal}");
         sb.AppendLine($"Actors: {string.Join(", ", model.Actors)}");
@@ -151,6 +193,7 @@ public sealed class AgentPipeline
         sb.AppendLine($"Constraints: {string.Join(", ", model.Constraints)}");
         sb.AppendLine($"NFR: {string.Join("; ", model.Nfr.Select(kv => $"{kv.Key}={kv.Value}"))}");
         sb.AppendLine($"Key Flows: {string.Join(", ", model.KeyFlows)}");
+
         return sb.ToString();
     }
 
